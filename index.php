@@ -1,7 +1,13 @@
 <?php
 
-require __DIR__.'/Modele.php';
 
-$billets = getBillets();
+require 'Modele.php';
 
-require __DIR__.'/vueAccueil.php';
+try {
+    $billets = getBillets();
+    require 'vueAccueil.php';
+}
+catch (Exception $e) {
+    $msgErreur = $e->getMessage();
+    require 'vueErreur.php';
+}
