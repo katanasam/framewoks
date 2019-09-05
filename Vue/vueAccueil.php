@@ -5,9 +5,9 @@
 
 
         <header>
-                <a href="<?= "billet.php?id=" . $billet['id'] ?>">
-                    <h1 class="titreBillet"><?= $billet['titre'] ?></h1>
-                </a>
+        <a href="<?= "index.php?action=billet&id=" . $billet['id'] ?>">
+    <h1 class="titreBillet"><?= $billet['titre'] ?></h1>
+  </a>
                 <time><?= $billet['date'] ?></time>
         </header>
     <article>
