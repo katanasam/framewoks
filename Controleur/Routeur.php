@@ -1,65 +1,60 @@
 <?php
 
-require_once 'Controleur/ControleurAccueil.php';
-require_once 'Controleur/ControleurBillet.php';
-require_once 'Vue/Vue.php';
+require_once 'Requete.php';
+require_once 'Vue.php';
 class Routeur {
 
-    private $ctrlAccueil;
-    private $ctrlBillet;
-
-    public function __construct() {
-        $this->ctrlAccueil = new ControleurAccueil();
-        $this->ctrlBillet = new ControleurBillet();
-    }
-
-    // Route une requête entrante : exécution l'action associée
+    // Route une requête entrante : exécute l'action associée
     public function routerRequete() {
         try {
-            if (isset($_GET['action'])) {
-            if ($_GET['action'] == 'billet')
-            {
-                $idBillet = intval($this->getParametre($_GET, 'id'));
-                if ($idBillet != 0) {
-                    $this->ctrlBillet->billet($idBillet);
-                }
-                else
-                    throw new Exception("Identifiant de billet non valide");
-            }
-                // cette action et sur la page billet uniquement
-                // le user ne peut cliquer que depuis cette page
-            if ($_GET['action'] == 'commenter')
-            {
-                $auteur = $this->getParametre($_POST, 'auteur');
-                $contenu = $this->getParametre($_POST, 'contenu');
-                $idBillet = $this->getParametre($_POST, 'id');
-                $this->ctrlBillet->commenter($auteur, $contenu, $idBillet);
-            }
-            else
-                throw new Exception("Action non valide");
-        }
-        else {  // aucune action définie : affichage de l'accueil
-            $this->ctrlAccueil->accueil();
-        }
+            // Fusion des paramètres GET et POST de la requête
+            // je commente mon code
+            $requete = new Requete(array_merge($_GET, $_POST));
+
+            $controleur = $this->creerControleur($requete);
+            $action = $this->creerAction($requete);
+
+            $controleur->executerAction($action);
         }
         catch (Exception $e) {
-            $this->erreur($e->getMessage());
+            $this->gererErreur($e);
         }
     }
 
-    // Affiche une erreur
-    private function erreur($msgErreur) {
-        $vue = new Vue("Erreur");
-        $vue->generer(array('msgErreur' => $msgErreur));
-    }
-
-    // Recherche un paramètre dans un tableau
-    private function getParametre($tableau, $nom) {
-        if (isset($tableau[$nom])) {
-            return $tableau[$nom];
+    // Crée le contrôleur approprié en fonction de la requête reçue
+    private function creerControleur(Requete $requete) {
+        $controleur = "Accueil";  // Contrôleur par défaut
+        if ($requete->existeParametre('controleur')) {
+            $controleur = $requete->getParametre('controleur');
+            // Première lettre en majuscule
+            $controleur = ucfirst(strtolower($controleur));
+        }
+        // Création du nom du fichier du contrôleur
+        $classeControleur = "Controleur" . $controleur;
+        $fichierControleur = "Controleur/" . $classeControleur . ".php";
+        if (file_exists($fichierControleur)) {
+            // Instanciation du contrôleur adapté à la requête
+            require($fichierControleur);
+            $controleur = new $classeControleur();
+            $controleur->setRequete($requete);
+            return $controleur;
         }
         else
-            throw new Exception("Paramètre '$nom' absent");
+            throw new Exception("Fichier '$fichierControleur' introuvable");
     }
 
+    // Détermine l'action à exécuter en fonction de la requête reçue
+    private function creerAction(Requete $requete)
+    {
+        $action = "index";  // Action par défaut
+        if ($requete->existeParametre('action')) {
+            $action = $requete->getParametre('action');
+        }
+        return $action;
+    }
+    // Gère une erreur d'exécution (exception)
+    private function gererErreur(Exception $exception) {
+        $vue = new Vue('erreur');
+        $vue->generer(array('msgErreur' => $exception->getMessage()));
+    }
 }

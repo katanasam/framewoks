@@ -1,6 +1,6 @@
 <?php
 
-require_once 'Modele/Modele.php';
+require_once '../Controleur/Modele.php';
 /**
  * Fournit les services d'accès aux genres musicaux
  *
