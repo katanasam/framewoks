@@ -16,7 +16,7 @@ html, body {
 
 body {
     color: #bfbfbf;
-    background: black;
+    background: rgb(255, 201, 201);
     font-family: 'Futura-Medium', 'Futura', 'Trebuchet MS', sans-serif;
 }
 
@@ -30,7 +30,7 @@ h1 {
 
 #global {
     min-height: 100%;  /* Voir commentaire sur html et body plus haut */
-    background: #333534;
+    background: #335745;
     width: 70%;
     margin: auto;	/* Permet de centrer la div */
     text-align: justify;
